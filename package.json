@@ -1,0 +1,17 @@
+{
+  "name": "oregon-geology",
+  "author": "Justin Palmer",
+  "scripts": {
+    "transpile": "babel --presets latest -o js/app.compiled.js js/app.js",
+    "watch": "babel --presets latest --watch -o js/app.compiled.js js/app.js",
+    "start": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "d3": "4"
+  },
+  "devDependencies": {
+    "eslint": "3",
+    "babel-cli": "6",
+    "babel-preset-latest": "6"
+  }
+}
