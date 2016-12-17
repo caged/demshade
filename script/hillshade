@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo "This is $1, $2"
+file_name=$(basename $1 .zip)
+dir_name=$(basename $2 .png)
+
+cd $(dirname $2)
+
+echo $dir_name
+echo $file_name
+
+echo "PWD:"
+
+
+gdalwarp \
+  -overwrite \
+  -s_srs EPSG:4269 \
+  -t_srs EPSG:2913 \
+  -of GTiff \
+  "./$dir_name/img${file_name}_1.img" \
+  $file_name.tif
+
+for i in $(seq 10 10 100); do
+  gdaldem hillshade \
+    $file_name.tif $file_name-$i.png \
+    -z $i.0 -s 0.001 -az 315.0 -alt 45.0 \
+    -compute_edges \
+    -of PNG
+
+  rm $file_name-$i.png.aux.xml
+done
+
+rm -rf "$dir_name"
