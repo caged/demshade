@@ -16,10 +16,12 @@ data/gz/usgs/1/%.zip:
 	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
-data/png/1/n46w124.png: data/gz/usgs/1/n46w124.zip script/hillshade
+data/png/1/n46w124-debug.png: data/gz/usgs/1/n46w124.zip script/hillshade
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
-	script/hillshade $@ $(word 3,$^)	
+
+	tar -xzm -C $(basename $@) -f $<
+	script/hillshade $< $@
 
 data/png/1/n46w124.png: data/gz/usgs/1/n46w124.zip
 	rm -rf $(basename $@)
@@ -41,7 +43,8 @@ data/png/1/n46w124.png: data/gz/usgs/1/n46w124.zip
 		-compute_edges \
 		-of PNG
 
-	pngnq -f -n 256 -s 10 -Q f -e ".png" $@
+	# pngnq -f -n 256 -s 10 -Q f -e ".png" $@
+	# pngquant --quality 25
 	rm $@.tif
 	rm $@.aux.xml
 	rm -rf $(basename $@)
