@@ -2,7 +2,11 @@
 
 # http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/HYP_HR_SR_OB_DR.zip
 
-https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/n46w124.zip
+# https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/n46w124.zip
+
+data/shp/states.shp: data/gz/usgs/ss/statesp010g.shp_nt00938.tar.gz
+data/shp/oregon.shp: data/shp/states.shp
+	ogr2ogr $@ $< -where 'NAME="Oregon"'
 
 # USGS National Elevation Dataset 1/3 arc-second
 data/gz/usgs/13/%.zip:
@@ -15,6 +19,12 @@ data/gz/usgs/1/%.zip:
 	mkdir -p $(dir $@)
 	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/$(notdir $@)' -o $@.download
 	mv $@.download $@
+
+data/gz/usgs/ss/%.gz:
+	mkdir -p $(dir $@)
+	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Small-scale/data/Boundaries/$(notdir $@)' -o $@.download
+	mv $@.download $@
+
 
 data/png/1/n46w124-debug.png: data/gz/usgs/1/n46w124.zip script/hillshade
 	rm -rf $(basename $@)
@@ -49,14 +59,12 @@ data/png/1/n46w124.png: data/gz/usgs/1/n46w124.zip
 	rm $@.aux.xml
 	rm -rf $(basename $@)
 
-# https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/IMG/n46w124.zip
-# data/gdb/ogdc_v6.gdb: data/gz/oregon-ogdc6.zip
-# 	mkdir -p $(dir $@)
-# 	tar -xzm -C $(dir $@) -f $<
-# 	rm -rf gdb/__MACOSX
-# 	mv data/gdb/OGDC_v6.gdb $@
-#
-# data/gz/oregon-ogdc6.zip:
-# 	mkdir -p $(dir $@)
-# 	curl --remote-time 'http://www.oregongeology.org/pubs/dds/ogdc/OGDC-6.zip' -o $@.download
-# 	mv $@.download $@
+data/shp/%.shp:
+	rm -rf $(basename $@)
+	mkdir -p $(basename $@)
+	tar --exclude="._*" -xzm -C $(basename $@) -f $<
+
+	for file in `find $(basename $@) -name '*.shp'`; do \
+		ogr2ogr $(basename $@).$${file##*.} $$file; \
+	done
+	rm -rf $(basename $@)
