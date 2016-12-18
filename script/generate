@@ -49,6 +49,7 @@ gdaldem hillshade \
   $state_dir/$state_name.tif $state_dir/$state_name.png \
   -z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
   -compute_edges \
+  -combined \
   -of PNG
 
 rm $state_dir/$state_name.tif
