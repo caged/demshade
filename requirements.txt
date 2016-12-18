@@ -1,0 +1,2 @@
+shapely==1.5.16
+Fiona==1.7.0.post2
