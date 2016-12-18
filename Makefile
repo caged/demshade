@@ -1,6 +1,6 @@
 .SECONDARY:
 
-data/png/1/oregon.png: data/shp/states.shp data/shp/arc_reference.shp
+data/png/oregon.png: data/shp/states.shp data/shp/arc_reference.shp
 
 data/shp/states.shp: data/gz/usgs/ss/statesp010g.shp_nt00938.tar.gz
 
@@ -19,11 +19,11 @@ data/shp/arc_reference.shp: data/gz/usgs/1/n46w124.zip
 # Wildcard																																									#
 # ###########################################################################################
 data/png/%.png: script/generate
-	# script/generate output.png state-name arc-second-detail
-	script/generate $@ $(notdir $(basename $@)) $(notdir $(patsubst %/,%,$(dir $@)))
+	# script/generate output.png state-name
+	script/generate $@ $(notdir $(basename $@))
 
 # # USGS National Elevation Dataset 1 arc-second
-data/gz/usgs/1/%.zip:
+data/gz/usgs/%.zip:
 	mkdir -p $(dir $@)
 	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/$(notdir $@)' -o $@.download
 	mv $@.download $@
