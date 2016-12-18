@@ -2,6 +2,7 @@
 
 output_file=$1
 state_name=$2
+srs_warp='EPSG:2913'
 
 mkdir -p $(dirname "$output_file")
 
@@ -32,14 +33,14 @@ if [ ! -f $state_dir/$state_name.img ]; then
 fi
 
 if [ ! -f $state_dir/$state_name.tif ]; then
+  echo "Warping object..."
   gdalwarp \
     -overwrite \
-    -s_srs EPSG:4269 \
-    -t_srs EPSG:2913 \
+    -t_srs $srs_warp \
     -of GTiff \
     -co COMPRESS=DEFLATE -dstalpha \
     -wo NUM_THREADS=ALL_CPUS \
-    -ts 5000 0 \
+    -ts 2500 0 \
     $state_dir/$state_name.img \
     $state_dir/$state_name.tif
 fi
