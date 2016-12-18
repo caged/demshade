@@ -52,5 +52,6 @@ gdaldem hillshade \
   -combined \
   -of PNG
 
-rm $state_dir/$state_name.tif
+pngquant --strip --verbose --force --quality 25 $state_dir/$state_name.png
+
 rm -rf $scratch_dir
