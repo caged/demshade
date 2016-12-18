@@ -1,0 +1,44 @@
+#!/bin/bash
+
+output_file=$1
+state_name=$2
+arc_second=$3
+
+rm -rf $(dirname "$output_file")
+mkdir -p $(dirname "$output_file")
+
+state_dir="$(dirname "$output_file")/$state_name"
+mkdir $state_dir
+
+
+for file_id in $(script/ned-ids --state $state_name); do
+  working_dir="$(dirname $output_file)/$file_id"
+  make data/gz/usgs/$arc_second/$file_id.zip
+
+  rm -rf "$working_dir"
+  mkdir -p "$working_dir"
+
+	tar -xzm -C $working_dir -f "data/gz/usgs/$arc_second/$file_id.zip"
+
+  # gdalwarp \
+  #   -overwrite \
+  #   -s_srs EPSG:4269 \
+  #   -t_srs EPSG:2913 \
+  #   -of GTiff \
+  #   -co COMPRESS=DEFLATE -dstalpha \
+  #   $working_dir/img${file_id}_${arc_second}.img \
+  #   $working_dir/$file_id.tif
+  #
+  # gdaldem hillshade \
+  #   $working_dir/$file_id.tif $state_dir/${file_id}.png \
+  #   -z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
+  #   -compute_edges \
+  #   -of PNG
+  #
+	# # pngnq -f -n 256 -s 10 -Q f -e ".png" $@
+	# # pngquant --quality 25
+	# rm $@.tif
+	# rm $@.aux.xml
+	# rm -rf "$working_dir"
+
+done
