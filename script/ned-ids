@@ -14,7 +14,7 @@ args = parser.parse_args()
 ned_ids = []
 
 with fiona.open('data/shp/states.shp') as src:
-    state = list(filter(lambda f: f['properties']['NAME'] == args.state, src))
+    state = list(filter(lambda f: f['properties']['NAME'].lower() == args.state, src))
     if len(state) > 1 or len(state) == 0:
         print("Error. Found %s states" % len(state))
     else:
