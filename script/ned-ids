@@ -3,15 +3,16 @@
 import sys
 import argparse
 import fiona
-from shapely.geometry import shape
+from shapely.geometry import shape, Polygon
 
 
 parser = argparse.ArgumentParser(description='Get a list of NED ids for the given state')
 parser.add_argument('--state', help='state name', required=True)
-parser.add_argument('--buffer', help='buffer area around state', default=1.5)
+parser.add_argument('--buffer', help='buffer area around state', default=0)
 args = parser.parse_args()
 
 ned_ids = []
+debug_file = "data/shp/" + args.state + "-debug.shp"
 
 with fiona.open('data/shp/states.shp') as src:
     state = list(filter(lambda f: f['properties']['NAME'].lower() == args.state, src))
@@ -20,11 +21,18 @@ with fiona.open('data/shp/states.shp') as src:
     else:
         state = state[0]
 
-    geom = shape(state['geometry']).buffer(1.5)
+    xmin, ymin, xmax, ymax = shape(state['geometry']).buffer(args.buffer).bounds
+    buffered_box = Polygon([
+            (xmin, ymin),
+            (xmin, ymax),
+            (xmax, ymax),
+            (xmax, ymin)])
 
     with fiona.open('data/shp/arc_reference.shp') as ref:
-        for layer in ref:
-            if geom.intersects(shape(layer['geometry'])):
-                ned_ids.append(layer['properties']['FILE_ID'])
+        with fiona.open(debug_file, "w", "ESRI Shapefile", schema=ref.schema, crs=ref.crs) as debug:
+            for layer in ref:
+                if buffered_box.intersects(shape(layer['geometry'])):
+                    ned_ids.append(layer['properties']['FILE_ID'])
+                    debug.write(layer)
 
 print(str.join(' ', ned_ids))
