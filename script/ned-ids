@@ -2,9 +2,10 @@
 
 import sys
 import argparse
+import json
+
 import fiona
 from shapely.geometry import shape, Polygon
-
 
 parser = argparse.ArgumentParser(description='Get a list of NED ids for the given state')
 parser.add_argument('--state', help='state name', required=True)
@@ -13,6 +14,7 @@ args = parser.parse_args()
 
 ned_ids = []
 debug_file = "data/shp/" + args.state + "-debug.shp"
+bounds_file = open("data/png/%s/%s-bounds.json" % (args.state, args.state), 'w')
 
 with fiona.open('data/shp/states.shp') as src:
     state = list(filter(lambda f: f['properties']['NAME'].lower() == args.state, src))
@@ -21,12 +23,20 @@ with fiona.open('data/shp/states.shp') as src:
     else:
         state = state[0]
 
-    xmin, ymin, xmax, ymax = shape(state['geometry']).buffer(args.buffer).bounds
+    state_geom = shape(state['geometry'])
+
+    xmin, ymin, xmax, ymax = state_geom.buffer(args.buffer).bounds
     buffered_box = Polygon([
             (xmin, ymin),
             (xmin, ymax),
             (xmax, ymax),
             (xmax, ymin)])
+
+    json.dump({
+        'state': args.state,
+        'buffered': state_geom.bounds,
+        'bounds': state_geom.bounds
+        }, bounds_file)
 
     with fiona.open('data/shp/arc_reference.shp') as ref:
         with fiona.open(debug_file, "w", "ESRI Shapefile", schema=ref.schema, crs=ref.crs) as debug:
