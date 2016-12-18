@@ -1,7 +1,5 @@
 .SECONDARY:
-
-data/png/oregon.png: data/shp/states.shp data/shp/arc_reference.shp
-
+	
 data/shp/states.shp: data/gz/usgs/ss/statesp010g.shp_nt00938.tar.gz
 
 # Can't find this individual file, but it is embedded with every IMG file
