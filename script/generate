@@ -8,37 +8,47 @@ rm -rf $(dirname "$output_file")
 mkdir -p $(dirname "$output_file")
 
 state_dir="$(dirname "$output_file")/$state_name"
-mkdir $state_dir
+scratch_dir=$state_dir/scratch
 
+mkdir $state_dir $scratch_dir
 
-for file_id in $(script/ned-ids --state $state_name); do
-  working_dir="$(dirname $output_file)/$file_id"
-  make data/gz/usgs/$arc_second/$file_id.zip
+# Skip all of this if the state.img file already exists
+if [ ! -f $state_dir/$state_name.img ]; then
+  for file_id in $(script/ned-ids --state $state_name); do
+      working_dir="$(dirname $output_file)/$file_id"
+      make data/gz/usgs/$arc_second/$file_id.zip
 
-  rm -rf "$working_dir"
-  mkdir -p "$working_dir"
+      rm -rf "$working_dir"
+      mkdir -p "$working_dir"
 
-	tar -xzm -C $working_dir -f "data/gz/usgs/$arc_second/$file_id.zip"
+      tar -xzm -C $working_dir -f "data/gz/usgs/$arc_second/$file_id.zip"
 
-  # gdalwarp \
-  #   -overwrite \
-  #   -s_srs EPSG:4269 \
-  #   -t_srs EPSG:2913 \
-  #   -of GTiff \
-  #   -co COMPRESS=DEFLATE -dstalpha \
-  #   $working_dir/img${file_id}_${arc_second}.img \
-  #   $working_dir/$file_id.tif
-  #
-  # gdaldem hillshade \
-  #   $working_dir/$file_id.tif $state_dir/${file_id}.png \
-  #   -z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
-  #   -compute_edges \
-  #   -of PNG
-  #
-	# # pngnq -f -n 256 -s 10 -Q f -e ".png" $@
-	# # pngquant --quality 25
-	# rm $@.tif
-	# rm $@.aux.xml
-	# rm -rf "$working_dir"
+      mv $working_dir/img${file_id}_${arc_second}.img $scratch_dir
+      rm -rf "$working_dir"
+  done
 
-done
+  # This only runs under python2.7
+  /usr/bin/python2.7 /Library/Frameworks/GDAL.framework/Versions/Current/Programs/gdal_merge.py \
+    -init 255 \
+    -o $state_dir/$state_name.img $(find $scratch_dir -name "*.img" | tr '\n' ' ')
+fi
+
+gdalwarp \
+  -overwrite \
+  -s_srs EPSG:4269 \
+  -t_srs EPSG:2913 \
+  -of GTiff \
+  -co COMPRESS=DEFLATE -dstalpha \
+  -wo NUM_THREADS=ALL_CPUS \
+  -ts 5000 0 \
+  $state_dir/$state_name.img \
+  $state_dir/$state_name.tif
+
+gdaldem hillshade \
+  $state_dir/$state_name.tif $state_dir/$state_name.png \
+  -z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
+  -compute_edges \
+  -of PNG
+
+rm $state_dir/$state_name.tif
+rm -rf $scratch_dir
