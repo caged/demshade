@@ -1,5 +1,5 @@
 .SECONDARY:
-	
+
 data/shp/states.shp: data/gz/usgs/ss/statesp010g.shp_nt00938.tar.gz
 
 # Can't find this individual file, but it is embedded with every IMG file
@@ -8,10 +8,6 @@ data/shp/arc_reference.shp: data/gz/usgs/1/n46w124.zip
 	mkdir -p $(basename $@)
 	tar -xzm -C $(basename $@) -f $<
 	ogr2ogr $@ data/shp/arc_reference/ned_1arcsec_g.shp
-
-
-
-
 
 #############################################################################################
 # Wildcard																																									#
