@@ -4,9 +4,18 @@ body {
   font: 12px normal sans-serif;
 }
 
-#vis {
-  height: 90vh;
-  width: 90vw;
-  background-image: url(/oregon-fs8.png);
-  background-size: contain;
+.map {
+  position: relative;
+  overflow: hidden;
+}
+
+.map img {
+  height: auto;
+  max-width: 100%;
+}
+
+.map svg {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
