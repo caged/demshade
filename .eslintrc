@@ -3,5 +3,6 @@ env:
     browser: true
 globals:
   d3: true
+  topojson: true
 extends:
     "eslint:recommended"
