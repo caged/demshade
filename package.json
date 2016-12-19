@@ -6,10 +6,8 @@
     "watch": "babel --presets latest --watch -d public/js js",
     "start": "cd public && python -m http.server 8000"
   },
-  "dependencies": {
-    "d3": "4"
-  },
   "devDependencies": {
+    "d3": "4",
     "babel-cli": "6",
     "babel-preset-latest": "6",
     "d3-geo-projection": "^1.2.1",
