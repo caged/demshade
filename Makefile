@@ -33,6 +33,6 @@ data/shp/%.shp:
 	tar --exclude="._*" -xzm -C $(basename $@) -f $<
 
 	for file in `find $(basename $@) -name '*.shp'`; do \
-		ogr2ogr $(basename $@).$${file##*.} $$file; \
+		ogr2ogr -t_srs 'EPSG:4326' $(basename $@).$${file##*.} $$file; \
 	done
 	rm -rf $(basename $@)
