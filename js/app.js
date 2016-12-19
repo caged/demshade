@@ -2,20 +2,16 @@ const el = d3.select(".js-vis"),
     ewidth = parseFloat(el.style("width")),
     eheight = parseFloat(el.style("height"))
 
-const margin = { top: 20, right: 20, bottom: 20, left: 50 },
+const margin = { top: 20, right: 0, bottom: 0, left: 0 },
     width = ewidth - margin.left - margin.right,
     height = eheight - margin.top - margin.bottom
 
-var path = d3.geoPath()
-    .projection(null)
-    
-// const x = d3.scaleLinear()
-//   .domain(d3.extent(data, d => d[0]))
-//   .range([0, width])
+var projection = d3.geoConicConformal()
+  .parallels([43, 45.5])
+  .rotate([120.5, 0])
 
-// const y = d3.scaleLinear()
-//   .domain(d3.extent(data, d => d[1]))
-//   .range([height, 0])
+var path = d3.geoPath()
+  .projection(projection)
 
 const vis = el.append("svg")
   .attr("width", width + margin.left + margin.right)
@@ -23,10 +19,18 @@ const vis = el.append("svg")
 .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-// d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
-//   if (error) throw error;
-//
-//   context.beginPath();
-//   path(topojson.mesh(us));
-//   context.stroke();
-// });
+d3.json("/oregon-topo.json", function(error, oregon) {
+  if (error) throw error;
+  const feature = topojson.feature(oregon, oregon.objects.state)
+  projection.fitSize([width, height], feature)
+
+  vis.append('path')
+    .datum(feature)
+    .attr('class', 'state')
+    .attr('d', path)
+
+  //
+  // context.beginPath();
+  // path(topojson.mesh(us));
+  // context.stroke();
+});
