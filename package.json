@@ -10,8 +10,12 @@
     "d3": "4"
   },
   "devDependencies": {
-    "eslint": "3",
     "babel-cli": "6",
-    "babel-preset-latest": "6"
+    "babel-preset-latest": "6",
+    "d3-geo-projection": "^1.2.1",
+    "eslint": "3",
+    "ndjson-cli": "^0.3.0",
+    "shapefile": "^0.5.9",
+    "topojson": "^2.2.0"
   }
 }
