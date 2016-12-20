@@ -25,3 +25,13 @@ body {
   stroke: #333;
   fill: none;
 }
+
+
+.debug-controls {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid orange;
+  z-index: 9999;
+}
