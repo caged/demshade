@@ -3,7 +3,7 @@
 data/shp/states.shp: data/gz/usgs/ss/statesp010g.shp_nt00938.tar.gz
 
 # Can't find this individual file, but it is embedded with every IMG file
-data/shp/arc_reference.shp: data/gz/usgs/1/n46w124.zip
+data/shp/arcsec1.shp: data/gz/usgs/1/n46w124.zip
 	rm -rf $(basename $@)
 	mkdir -p $(basename $@)
 	tar -xzm -C $(basename $@) -f $<
