@@ -2,18 +2,14 @@
   "name": "oregon-geology",
   "author": "Justin Palmer",
   "scripts": {
-    "transpile": "babel --presets latest -o js/app.compiled.js js/app.js",
-    "watch": "babel --presets latest --watch -d public/js js",
     "start": "cd public && python -m http.server 8000"
   },
   "devDependencies": {
     "d3": "4",
-    "babel-cli": "6",
-    "babel-preset-latest": "6",
     "d3-geo-projection": "^1.2.1",
-    "eslint": "3",
     "ndjson-cli": "^0.3.0",
     "shapefile": "^0.5.9",
-    "topojson": "^2.2.0"
+    "topojson": "^2.2.0",
+    "jsts": "^1.3.0"
   }
 }
