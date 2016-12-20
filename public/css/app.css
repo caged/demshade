@@ -19,3 +19,9 @@ body {
   top: 0;
   left: 0;
 }
+
+.state {
+  stroke-width: 2px;
+  stroke: #333;
+  fill: none;
+}
