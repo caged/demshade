@@ -14,7 +14,6 @@ args = parser.parse_args()
 
 ned_ids = []
 debug_file = "data/shp/" + args.state + "-debug.shp"
-bounds_file = open("data/png/%s/%s-bounds.json" % (args.state, args.state), 'w')
 
 with fiona.open('data/shp/states.shp') as src:
     state = list(filter(lambda f: f['properties']['NAME'].lower() == args.state, src))
@@ -32,11 +31,12 @@ with fiona.open('data/shp/states.shp') as src:
             (xmax, ymax),
             (xmax, ymin)])
 
-    json.dump({
-        'state': args.state,
-        'buffered': state_geom.bounds,
-        'bounds': state_geom.bounds
-        }, bounds_file)
+    with open("data/png/%s/%s-bounds.json" % (args.state, args.state), 'w') as debugf:
+        json.dump({
+            'state': args.state,
+            'buffered': buffered_box.bounds,
+            'bounds': state_geom.bounds
+            }, debugf, indent=2)
 
     with fiona.open('data/shp/arc_reference.shp') as ref:
         with fiona.open(debug_file, "w", "ESRI Shapefile", schema=ref.schema, crs=ref.crs) as debug:
