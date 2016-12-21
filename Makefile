@@ -88,9 +88,11 @@ data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.
 		-co COMPRESS=DEFLATE \
 		-dstalpha \
 		-wo NUM_THREADS=ALL_CPUS \
+		-multi \
 		-ts $(WIDTH) $(HEIGHT) \
 		-cutline $(word 1,$^) \
 		-crop_to_cutline \
+		-r lanczos \
 		$(word 2,$^) \
 		$@
 
