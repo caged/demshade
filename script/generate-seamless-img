@@ -20,8 +20,6 @@ for grid in $grid_tiles; do
   img_paths+="$img_file "
 done
 
-echo $img_paths
-
 gdal_merge.py \
     -init 255 \
     -o $out_img $img_paths
