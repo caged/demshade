@@ -1,3 +1,9 @@
+# If you want to reproject output PNG images, you can specify SRS in the environment.
+# SRS='EPSG:2913' make data/png/states/oregon.png
+SRS ?= "EPSG:4326"
+WIDTH ?= 2500
+HEIGHT ?= 0
+
 STATE_FIPS = \
 	01|al|alabama \
 	02|ak|alaska \
@@ -70,9 +76,33 @@ $(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
 
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
-data/img/oregon.img: data/json/states/oregon.json
+data/img/states/oregon.img: data/json/states/oregon.json
 	mkdir -p $(basename $@)
 	bash script/generate-seamless-img $@ $< low
+
+data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.img
+	mkdir -p $(dir $@)
+	gdalwarp \
+	  -t_srs $(SRS) \
+		-of GTiff \
+		-co COMPRESS=DEFLATE \
+		-dstalpha \
+		-wo NUM_THREADS=ALL_CPUS \
+		-ts $(WIDTH) $(HEIGHT) \
+		-cutline $(word 1,$^) \
+		-crop_to_cutline \
+		$(word 2,$^) \
+		$@
+
+data/png/states/oregon.png: data/tif/states/oregon.tif
+	mkdir -p $(dir $@)
+	gdaldem hillshade $< $@ \
+		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
+		-compute_edges \
+		-combined \
+		-of PNG
+
+	pngquant --strip --verbose --force --quality 25 $@
 
 #############################################################################################
 # Wildcard																																									#
