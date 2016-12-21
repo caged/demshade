@@ -54,29 +54,48 @@ STATE_FIPS = \
 ################################################################################
 # MAKE TARGET GENERATION
 ################################################################################
-define PLACE_TARGETS_TEMPLATE
-data/shp/places/$(word 3,$(subst |, ,$(state))).shp: data/gz/census/cb_2015_$(word 1,$(subst |, ,$(state)))_place_500k.zip
-endef
-$(foreach state,$(STATE_FIPS),$(eval $(PLACE_TARGETS_TEMPLATE)))
+# Produces multiple targets for each state.
+# data/json/states/oregon.json - geojson of state outlines
+# data/shp/places
+define STATE_TARGETS_TEMPLATE
+data/json/states/$(word 3,$(subst |, ,$(state))).json: data/shp/states.shp
+	mkdir -p data/json/states
+	shp2json -n data/shp/states.shp | ndjson-filter "d.properties.STATEFP == $(word 1,$(subst |, ,$(state)))" \
+		> data/json/states/$(word 3,$(subst |, ,$(state))).json
 
-places: $(foreach T,$(STATE_FIPS),data/shp/places/$(word 3,$(subst |, ,$(T))).shp)
+data/shp/$(word 3,$(subst |, ,$(state)))_places.shp: data/gz/census/cb_2015_$(word 1,$(subst |, ,$(state)))_place_500k.zip
+endef
+
+$(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
+
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
+
+data/img/oregon.img: data/json/states/oregon.json
+	mkdir -p $(basename $@)
+	bash script/generate-seamless-img $@ $< low
 
 #############################################################################################
 # Wildcard																																									#
 # ###########################################################################################
 
 # High Resolution USGS National Elevation Dataset at 1/3 arc-second.
-data/gz/usgs/dem/third/%.zip:
+data/gz/usgs/dem/high/%.zip:
 	mkdir -p $(dir $@)
 	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/IMG/$(notdir $@)' -o $@.download
 	mv $@.download $@
 
 # Standard Resolution USGS National Elevation Dataset at 1 arc-second
-data/gz/usgs/dem/one/%.zip:
+data/gz/usgs/dem/low/%.zip:
 	mkdir -p $(dir $@)
 	curl --remote-time 'https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1/IMG/$(notdir $@)' -o $@.download
 	mv $@.download $@
+
+# Extract standard resolution (1 arc-second) DEM grid tile
+data/img/usgs/dem/low/%.img: data/gz/usgs/dem/low/%.zip
+	mkdir -p $(basename $<)
+	tar -xzm -C $(basename $<) -f $<
+	mv $(basename $<)/img$(notdir $(basename $@))_1.img $@
+	rm -rf $(basename $<)
 
 # USGS small-scale data catalog
 data/gz/census/%.zip:

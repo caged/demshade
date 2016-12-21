@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Example usage:
+#    script/generate-seamless-img data/img/oregon.img data/json/states/oregon.json 1
+#     script/generate-seamless-img data/img/oregon.img data/json/states/oregon.json 2
+out_img=$1
+target_data=$2
+resolution=$3
+
+# Given a $target_data feature, find the DEM grids that intersect with it
+grid_tiles=$(ndjson-join 'true' <(cat $target_data) <(cat static/grid-${resolution}.json) \
+  | ndjson-filter -r jsts 'function(d) { var r = new jsts.io.GeoJSONReader(), g1 = r.read(d[0].geometry), g2 = r.read(d[1].geometry); return !g1.intersection(g2).isEmpty() }.call(this, d)' \
+  | ndjson-map 'd[1].properties.FILE_ID')
+
+img_paths=""
+for grid in $grid_tiles; do
+  file_id=$(echo $grid | tr -d '"')
+  img_file=data/img/usgs/dem/$resolution/$file_id.img
+  make $img_file
+  img_paths+="$img_file "
+done
+
+echo $img_paths
+
+gdal_merge.py \
+    -init 255 \
+    -o $out_img $img_paths
