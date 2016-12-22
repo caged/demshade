@@ -20,6 +20,11 @@ for grid in $grid_tiles; do
   img_paths+="$img_file "
 done
 
+echo "Merging to $out_img"
 gdal_merge.py \
+    -n -3.4028234663852886e+38 \
+    -a_nodata -99999 \
     -init 255 \
     -o $out_img $img_paths
+
+echo "Data directory is at $(du -sh data)"
