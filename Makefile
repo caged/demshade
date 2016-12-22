@@ -87,6 +87,8 @@ data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.
 		-of GTiff \
 		-co COMPRESS=DEFLATE \
 		-dstalpha \
+		-srcnodata -99999 \
+		-dstnodata -99999 \
 		-wo NUM_THREADS=ALL_CPUS \
 		-multi \
 		-ts $(WIDTH) $(HEIGHT) \
