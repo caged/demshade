@@ -77,7 +77,7 @@ $(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
 data/img/states/oregon.img: data/json/states/oregon.json
-	mkdir -p $(basename $@)
+	mkdir -p $(dir $@)
 	bash script/generate-seamless-img $@ $< low
 
 data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.img
