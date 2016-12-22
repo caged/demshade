@@ -146,3 +146,10 @@ data/shp/%.shp:
 		ogr2ogr -t_srs 'EPSG:4326' $(basename $@).$${file##*.} $$file; \
 	done
 	rm -rf $(basename $@)
+
+#############################################################################################
+# Utility																																									#
+# ###########################################################################################
+quick_clean:
+	rm data/png/states/oregon.png
+	rm data/tif/states/oregon.tif
