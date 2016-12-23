@@ -74,6 +74,23 @@ endef
 
 $(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
 
+################################################################################
+# Final products
+################################################################################
+data/png/states/%.png: data/tif/states/%.tif
+	mkdir -p $(dir $@)
+	gdaldem hillshade $< $@ \
+		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
+		-compute_edges \
+		-combined \
+		-of PNG
+
+	pngquant --strip --verbose --force --quality 25 $@
+
+################################################################################
+# Intermediate products
+################################################################################
+.SECONDARY:
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
 data/img/states/%.img: data/json/states/%.json
@@ -97,16 +114,6 @@ data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
 		-r lanczos \
 		$(word 2,$^) \
 		$@
-
-data/png/states/%.png: data/tif/states/%.tif
-	mkdir -p $(dir $@)
-	gdaldem hillshade $< $@ \
-		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
-		-compute_edges \
-		-combined \
-		-of PNG
-
-	pngquant --strip --verbose --force --quality 25 $@
 
 #############################################################################################
 # Wildcard																																									#
@@ -150,6 +157,7 @@ data/shp/%.shp:
 #############################################################################################
 # Utility																																									#
 # ###########################################################################################
+.PHONY:
 clean/state/%:
 	rm data/png/states/$(notdir $@).png
 	rm data/tif/states/$(notdir $@).tif
