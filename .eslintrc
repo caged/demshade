@@ -1,8 +1,4 @@
 env:
-    es6: true
-    browser: true
-globals:
-  d3: true
-  topojson: true
+    node: true
 extends:
     "eslint:recommended"
