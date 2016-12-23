@@ -2,7 +2,6 @@
   "name": "oregon-geology",
   "author": "Justin Palmer",
   "scripts": {
-    "start": "cd public && python -m http.server 8000"
   },
   "devDependencies": {
     "d3": "4",
