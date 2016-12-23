@@ -11,7 +11,7 @@ commander
   .version(require("../package.json").version)
   .option('-mi, --min <n>', 'min range value')
   .option('-ma, --max <n>', 'max range value')
-  .option('-c, --count <n>', 'Number of colors to return', 10)
+  .option('-c, --count <n>', 'Number of colors to return')
   .option('-c1, --color1 <c>', 'start color', c1.toString())
   .option('-c2, --color2 <c>', 'end color', c2.toString())
   .option('--ramp', 'generate ramp', c2.toString())
