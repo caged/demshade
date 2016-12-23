@@ -17,6 +17,7 @@ commander
   .option('--ramp', 'generate ramp', c2.toString())
   .option('-i, --interpolate [interpolater]', 'Set the interpolater', 'Cubehelix')
   .option('-t, --tif <img>', 'get min and max from GeoTif stats.')
+  .option('-i, --interpolate <interpolater>', 'Set the interpolater', 'Inferno')
   .parse(process.argv);
 
 if(commander.tif) {
@@ -26,7 +27,7 @@ if(commander.tif) {
   commander.max = data.bands[0].max
 }
 
-var scale = d3.scaleLinear()
+var scale = d3.scaleSequential(d3['interpolate' + commander.interpolate])
   .domain([commander.min, commander.max])
   .range([commander.color1, commander.color2])
   .interpolate(d3['interpolate' + commander.interpolate])
