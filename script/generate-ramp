@@ -35,6 +35,6 @@ scale.ticks(commander.count).map((v) => {
   if(commander.ramp) {
     console.log(v + ' ' + c.r + ' ' + c.g + ' ' + c.b);
   } else {
-    console.log(c.toString)
+    console.log(c.toString())
   }
 })
