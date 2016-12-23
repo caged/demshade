@@ -1,5 +1,18 @@
 #!/usr/bin/env node
-
+// Generates a series of colors using sequential scales.  Output can either be a list of rgb()
+// values or color ramp files for gdaldem color-relief images.
+//
+// Examples:
+//  Generate ramp format getting min/max elevation from the input tif
+//    generate-ramp -c 10 --ramp --tif data/tif/states/oregon.tif
+//
+//  Use Viridis interpolation.  See https://github.com/d3/d3-scale#sequential-scales.  Case-sensitive.
+//    generate-ramp --interpolate Viridis --ramp --tif data/tif/states/oregon.tif > static/viridis.ramp
+//
+//  Generate 25 rgb() colors beween a range of 10-100
+//    generate-ramp -c 25 --min 10 --max 100
+//
+//
 var d3 = require('d3'),
     commander = require('commander'),
     exec = require('child_process').execSync
