@@ -14,8 +14,7 @@ commander
   .option('-c, --count <n>', 'Number of colors to return')
   .option('-c1, --color1 <c>', 'start color', c1.toString())
   .option('-c2, --color2 <c>', 'end color', c2.toString())
-  .option('--ramp', 'generate ramp', c2.toString())
-  .option('-i, --interpolate [interpolater]', 'Set the interpolater', 'Cubehelix')
+  .option('--ramp', 'generate ramp')
   .option('-t, --tif <img>', 'get min and max from GeoTif stats.')
   .option('-i, --interpolate <interpolater>', 'Set the interpolater', 'Inferno')
   .parse(process.argv);
