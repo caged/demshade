@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 var d3 = require('d3'),
-    commander = require('commander')
+    commander = require('commander'),
+    exec = require('child_process').execSync
 
 var hue = d3.randomUniform(360)(),
     c1 = d3.hsl(Math.round(hue), 1, 0.5),
@@ -28,10 +29,8 @@ if(commander.tif) {
 
 var scale = d3.scaleSequential(d3['interpolate' + commander.interpolate])
   .domain([commander.min, commander.max])
-  .range([commander.color1, commander.color2])
-  .interpolate(d3['interpolate' + commander.interpolate])
 
-scale.ticks().map((v) => {
+scale.ticks(commander.count).map((v) => {
   var c = d3.rgb(scale(v))
   if(commander.ramp) {
     console.log(v + ' ' + c.r + ' ' + c.g + ' ' + c.b);
