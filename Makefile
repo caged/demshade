@@ -76,11 +76,11 @@ $(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
 
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
-data/img/states/oregon.img: data/json/states/oregon.json
+data/img/states/%.img: data/json/states/%.json
 	mkdir -p $(dir $@)
 	bash script/generate-seamless-img $@ $< low
 
-data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.img
+data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
 	mkdir -p $(dir $@)
 	gdalwarp \
 	  -t_srs $(SRS) \
@@ -98,7 +98,7 @@ data/tif/states/oregon.tif: data/json/states/oregon.json data/img/states/oregon.
 		$(word 2,$^) \
 		$@
 
-data/png/states/oregon.png: data/tif/states/oregon.tif
+data/png/states/%.png: data/tif/states/%.tif
 	mkdir -p $(dir $@)
 	gdaldem hillshade $< $@ \
 		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
@@ -150,6 +150,6 @@ data/shp/%.shp:
 #############################################################################################
 # Utility																																									#
 # ###########################################################################################
-quick_clean:
-	rm data/png/states/oregon.png
-	rm data/tif/states/oregon.tif
+clean/state/%:
+	rm data/png/states/$(notdir $@).png
+	rm data/tif/states/$(notdir $@).tif
