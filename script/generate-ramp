@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+var d3 = require('d3'),
+    commander = require('commander')
+
+var hue = d3.randomUniform(360)(),
+    c1 = d3.hsl(Math.round(hue), 1, 0.5),
+    c2 = d3.hsl(Math.round(hue) + 90, 1, 0.5)
+
+commander
+  .version(require("../package.json").version)
+  .option('-mi, --min <n>', 'min range value')
+  .option('-ma, --max <n>', 'max range value')
+  .option('-c, --count <n>', 'Number of colors to return', 10)
+  .option('-c1, --color1 <c>', 'start color', c1.toString())
+  .option('-c2, --color2 <c>', 'end color', c2.toString())
+  .option('--ramp', 'generate ramp', c2.toString())
+  .option('-i, --interpolate [interpolater]', 'Set the interpolater', 'Cubehelix')
+  .parse(process.argv);
+
+
+var scale = d3.scaleLinear()
+  .domain([commander.min, commander.max])
+  .range([commander.color1, commander.color2])
+  .interpolate(d3['interpolate' + commander.interpolate])
+
+scale.ticks().map((v) => {
+  var c = d3.rgb(scale(v))
+  if(commander.ramp) {
+    console.log(v + ' ' + c.r + ' ' + c.g + ' ' + c.b);
+  } else {
+    console.log(c.toString)
+  }
+})
