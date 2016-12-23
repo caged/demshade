@@ -6,10 +6,11 @@
 out_img=$1
 target_data=$2
 resolution=$3
+buffer_miles=$4
 
 # Given a $target_data feature, find the DEM grids that intersect with it
 grid_tiles=$(ndjson-join 'true' <(cat $target_data) <(cat static/grid-${resolution}.json) \
-  | ndjson-filter -r geom=./script/geom.js 'geom.intersect(geom.buffer(geom.envelope(d[0]), 10, "miles"), d[1])' \
+  | ndjson-filter -r geom=./script/geom.js "geom.intersect(geom.buffer(geom.envelope(d[0]), $buffer_miles, 'miles'), d[1])" \
   | ndjson-map 'd[1].properties.FILE_ID')
 
 img_paths=""

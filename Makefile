@@ -3,6 +3,9 @@
 SRS ?= "EPSG:4326"
 WIDTH ?= 2500
 HEIGHT ?= 0
+# Buffer area in miles around the state boundaries.  This is used to determine which grid files to
+# feetch and draw.  Sometimes you want to draw the surrounding area around the state.
+BUFFER ?= 10
 
 STATE_FIPS = \
 	01|al|alabama \
@@ -95,7 +98,7 @@ data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
 data/img/states/%.img: data/json/states/%.json
 	mkdir -p $(dir $@)
-	bash script/generate-seamless-img $@ $< low
+	bash script/generate-seamless-img $@ $< low $(BUFFER)
 
 data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
 	mkdir -p $(dir $@)
