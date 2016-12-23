@@ -16,8 +16,15 @@ commander
   .option('-c2, --color2 <c>', 'end color', c2.toString())
   .option('--ramp', 'generate ramp', c2.toString())
   .option('-i, --interpolate [interpolater]', 'Set the interpolater', 'Cubehelix')
+  .option('-t, --tif <img>', 'get min and max from GeoTif stats.')
   .parse(process.argv);
 
+if(commander.tif) {
+  var out = exec('gdalinfo -stats -json ' + commander.tif, { encoding: 'utf-8' })
+  var data = JSON.parse(out)
+  commander.min = data.bands[0].min
+  commander.max = data.bands[0].max
+}
 
 var scale = d3.scaleLinear()
   .domain([commander.min, commander.max])
