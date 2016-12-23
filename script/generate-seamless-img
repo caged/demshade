@@ -9,7 +9,7 @@ resolution=$3
 
 # Given a $target_data feature, find the DEM grids that intersect with it
 grid_tiles=$(ndjson-join 'true' <(cat $target_data) <(cat static/grid-${resolution}.json) \
-  | ndjson-filter -r jsts 'function(d) { var r = new jsts.io.GeoJSONReader(), g1 = r.read(d[0].geometry), g2 = r.read(d[1].geometry); return !g1.intersection(g2).isEmpty() }.call(this, d)' \
+  | ndjson-filter -r geom=./script/geom.js 'geom.intersect(geom.buffer(geom.envelope(d[0]), 10, "miles"), d[1])' \
   | ndjson-map 'd[1].properties.FILE_ID')
 
 img_paths=""
