@@ -1,11 +1,16 @@
 # If you want to reproject output PNG images, you can specify SRS in the environment.
 # SRS='EPSG:2913' make data/png/states/oregon.png
 SRS ?= "EPSG:4326"
+# Width and Height of output image.
 WIDTH ?= 2500
 HEIGHT ?= 0
 # Buffer area in miles around the state boundaries.  This is used to determine which grid files to
 # feetch and draw.  Sometimes you want to draw the surrounding area around the state.
 BUFFER ?= 10
+
+# Crop and cut geometry to target geometry outline.  Essentially, if you want a cutout of a state or
+# area set this to YES, if you want a rectable with surrounding geometry, leave this as no.
+CROP_AND_CUT ?= no
 
 STATE_FIPS = \
 	01|al|alabama \
@@ -102,6 +107,10 @@ data/img/states/%.img: data/json/states/%.json
 
 data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
 	mkdir -p $(dir $@)
+ifeq ("$(CROP_AND_CUT)","yes")
+	echo "Cropping and cutting tif to geometry outline..."
+	$(eval CUTARGS = -cutline $(word 1,$^) -crop_to_cutline)
+endif
 	gdalwarp \
 	  -t_srs $(SRS) \
 		-of GTiff \
@@ -112,8 +121,7 @@ data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
 		-wo NUM_THREADS=ALL_CPUS \
 		-multi \
 		-ts $(WIDTH) $(HEIGHT) \
-		-cutline $(word 1,$^) \
-		-crop_to_cutline \
+		$(CUTARGS) \
 		-r lanczos \
 		$(word 2,$^) \
 		$@
