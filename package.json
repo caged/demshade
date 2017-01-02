@@ -5,10 +5,13 @@
   "devDependencies": {
     "@turf/buffer": "^3.7.0",
     "@turf/envelope": "^3.7.0",
+    "@turf/helpers": "^3.6.3",
     "@turf/intersect": "^3.7.0",
     "commander": "^2.9.0",
     "d3": "4",
     "d3-geo-projection": "^1.2.1",
+    "gdal": "^0.9.3",
+    "jsdom": "^9.9.1",
     "ndjson-cli": "^0.3.0",
     "shapefile": "^0.5.9",
     "topojson": "^2.2.0"

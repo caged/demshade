@@ -95,6 +95,10 @@ data/png/states/%.png: data/tif/states/%.tif
 
 	pngquant --strip --verbose --force --quality 25 $@
 
+data/svg/states/%.svg: data/tif/states/%.tif
+	mkdir -p $(dir $@)
+	node script/generate-overlay-svg -o $@ -i $<
+
 ################################################################################
 # Intermediate products
 ################################################################################

@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+
+const gdal = require('gdal')
+const d3 = require('d3')
+const jsdom = require('jsdom')
+const commander = require('commander')
+const featureCollection = require('@turf/helpers').featureCollection
+const point = require('@turf/helpers').point
+const envelope = require('@turf/envelope')
+const fs = require('fs')
+
+commander
+  .version(require("../package.json").version)
+  .option('-i, --in <img>', 'tif image to extract GIS info from')
+  .option('-o, --out <svg>', 'svg to write')
+  .parse(process.argv)
+
+// Takes a proj4 string and converts it into a javascript object
+// str - proj4 string
+
+function projToObj(str) {
+  const out = {}
+  str.split(/\s?\+/).forEach((e) => {
+    var d = e.split('=')
+    if(d[0]) out[d[0]] = d[1] ? d[1].trim() : null
+  })
+
+  return out
+}
+
+const ds = gdal.open(commander.in),
+      info = projToObj(ds.srs.toProj4()),
+      width = ds.rasterSize.x,
+      height = ds.rasterSize.y,
+      document = jsdom.jsdom()
+
+const [ulx, xres, xskew, uly, yskew, yres] = ds.geoTransform,
+      lrx = ulx + (width * xres),
+      lry = uly + (height * yres)
+
+const wgs84 = gdal.SpatialReference.fromEPSG(4326),
+      transformer = new gdal.CoordinateTransformation(ds.srs, wgs84),
+      topL = transformer.transformPoint(ulx, uly),
+      botR = transformer.transformPoint(lrx, lry),
+      pointTL = point([topL.x, topL.y]),
+      pointBR = point([botR.x, botR.y]),
+      boundsPoly = envelope(featureCollection([pointTL, pointBR]))
+
+const out = d3.select(document.body).append('svg')
+  .attr('xmlns', 'http://www.w3.org/2000/svg')
+  .attr('width', width)
+  .attr('height', height)
+
+// ds.bands.forEach(function(l) {
+//   console.log(ds);
+// })
+// TODO: Read some GeoJSON data and render the state svg
+// - State outline(s)
+// - Water
+// - Counties
+// - Populated places
+// - Roads
+// - Use OpenStreetMap data?
+fs.writeFileSync(commander.out, d3.select(document.body).node().innerHTML)
