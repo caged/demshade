@@ -7,17 +7,18 @@ const commander = require('commander')
 const featureCollection = require('@turf/helpers').featureCollection
 const point = require('@turf/helpers').point
 const envelope = require('@turf/envelope')
+const intersection = require('@turf/intersect')
 const fs = require('fs')
 
 commander
   .version(require("../package.json").version)
   .option('-i, --in <img>', 'tif image to extract GIS info from')
   .option('-o, --out <svg>', 'svg to write')
+  .option('--states <staes>', 'geojson states data')
   .parse(process.argv)
 
 // Takes a proj4 string and converts it into a javascript object
 // str - proj4 string
-
 function projToObj(str) {
   const out = {}
   str.split(/\s?\+/).forEach((e) => {
@@ -58,6 +59,29 @@ const out = d3.select(document.body).append('svg')
   .attr('xmlns', 'http://www.w3.org/2000/svg')
   .attr('width', width)
   .attr('height', height)
+
+const projection = d3.geoConicConformal()
+  .parallels([+info.lat_1, +info.lat_2])
+  .rotate([Math.abs(+info.lon_0), 0])
+
+const path = d3.geoPath()
+  .projection(projection)
+
+const states = JSON.parse(fs.readFileSync(commander.states, 'utf-8')),
+      intersections = []
+
+states.features.forEach(s => {
+  const theIntersect = intersection(s.geometry, boundingPoly.geometry)
+  if(theIntersect) intersections.push(theIntersect)
+})
+
+const features = featureCollection(intersections)
+projection.fitSize([width, height], features)
+
+out.selectAll('.state')
+  .data(features.features)
+.enter().append('path')
+  .attr('d', path)
 
 // ds.bands.forEach(function(l) {
 //   console.log(ds);
