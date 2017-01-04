@@ -28,23 +28,31 @@ function projToObj(str) {
   return out
 }
 
+// Get the bounds of the datasources as a polygon projected to WGS84
+// ds - The tif data sources
+//
+// Returns a Polygon
+function wgs84Envelope(ds) {
+  const [ulx, xres, xskew, uly, yskew, yres] = ds.geoTransform,
+        lrx = ulx + (ds.rasterSize.x * xres),
+        lry = uly + (ds.rasterSize.y * yres)
+
+  const wgs84 = gdal.SpatialReference.fromEPSG(4326),
+        transformer = new gdal.CoordinateTransformation(ds.srs, wgs84),
+        topL = transformer.transformPoint(ulx, uly),
+        botR = transformer.transformPoint(lrx, lry),
+        pointTL = point([topL.x, topL.y]),
+        pointBR = point([botR.x, botR.y])
+
+  return envelope(featureCollection([pointTL, pointBR]))
+}
+
 const ds = gdal.open(commander.in),
       info = projToObj(ds.srs.toProj4()),
       width = ds.rasterSize.x,
       height = ds.rasterSize.y,
-      document = jsdom.jsdom()
-
-const [ulx, xres, xskew, uly, yskew, yres] = ds.geoTransform,
-      lrx = ulx + (width * xres),
-      lry = uly + (height * yres)
-
-const wgs84 = gdal.SpatialReference.fromEPSG(4326),
-      transformer = new gdal.CoordinateTransformation(ds.srs, wgs84),
-      topL = transformer.transformPoint(ulx, uly),
-      botR = transformer.transformPoint(lrx, lry),
-      pointTL = point([topL.x, topL.y]),
-      pointBR = point([botR.x, botR.y]),
-      boundsPoly = envelope(featureCollection([pointTL, pointBR]))
+      document = jsdom.jsdom(),
+      boundingPoly = wgs84Envelope(ds)
 
 const out = d3.select(document.body).append('svg')
   .attr('xmlns', 'http://www.w3.org/2000/svg')
