@@ -97,12 +97,16 @@ data/png/states/%.png: data/tif/states/%.tif
 
 data/svg/states/%.svg: data/tif/states/%.tif
 	mkdir -p $(dir $@)
-	node script/generate-overlay-svg -o $@ -i $<
+	node script/generate-overlay-svg -o $@ -i $< --states data/json/states.json
 
 ################################################################################
 # Intermediate products
 ################################################################################
 .SECONDARY:
+data/json/states.json: data/shp/states.shp
+	mkdir -p $(dir $@)
+	shp2json -o $@ $<
+
 data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 
 data/img/states/%.img: data/json/states/%.json
