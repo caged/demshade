@@ -9,8 +9,8 @@ HEIGHT ?= 0
 BUFFER ?= 10
 
 # Crop and cut geometry to target geometry outline.  Essentially, if you want a cutout of a state or
-# area set this to YES, if you want a rectable with surrounding geometry, leave this as no.
-CROP_AND_CUT ?= no
+# area set this to YES, if you want a square with surrounding geometry, leave this as no.
+CROP_AND_CUT ?= yes
 
 STATE_FIPS = \
 	01|al|alabama \
