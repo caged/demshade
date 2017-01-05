@@ -18,7 +18,7 @@ WIDTH=5000 make data/png/states/oregon.png
 WIDTH=0 HEIGHT=5000 make data/png/states/oregon.png
 
 # Cut the resulting png around the state borders and crop the image to those boundaries
-# e.g. make a state cutout of oregon
+# e.g. make a state cutout of Oregon
 SRS='EPSG:2913' CROP_AND_CUT=yes make data/png/states/oregon.png
 ```
 
