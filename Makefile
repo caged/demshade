@@ -1,5 +1,5 @@
-# If you want to reproject output PNG images, you can specify SRS in the environment.
-# SRS='EPSG:2913' make data/png/states/oregon.png
+# If you want to reproject output TIF images, you can specify SRS in the environment.
+# SRS='EPSG:2913' make data/tif/states/oregon.tif
 SRS ?= "EPSG:4326"
 # Width and Height of output image.
 WIDTH ?= 2500
