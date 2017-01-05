@@ -33,7 +33,7 @@ function projToObj(str) {
 // ds - The tif data sources
 //
 // Returns a Polygon
-function wgs84Envelope(ds) {
+function getEnvelopes(ds) {
   const [ulx, xres, xskew, uly, yskew, yres] = ds.geoTransform,
         lrx = ulx + (ds.rasterSize.x * xres),
         lry = uly + (ds.rasterSize.y * yres)
@@ -42,10 +42,15 @@ function wgs84Envelope(ds) {
         transformer = new gdal.CoordinateTransformation(ds.srs, wgs84),
         topL = transformer.transformPoint(ulx, uly),
         botR = transformer.transformPoint(lrx, lry),
-        pointTL = point([topL.x, topL.y]),
-        pointBR = point([botR.x, botR.y])
+        pointTL  = point([ulx, uly]),
+        pointBR  = point([lrx, lry]),
+        tPointTL = point([topL.x, topL.y]),
+        tPointBR = point([botR.x, botR.y])
 
-  return envelope(featureCollection([pointTL, pointBR]))
+  return {
+    wgs84: envelope(featureCollection([tPointTL, tPointBR])),
+    native: envelope(featureCollection([pointTL, pointBR]))
+  }
 }
 
 const ds = gdal.open(commander.in),
@@ -53,7 +58,8 @@ const ds = gdal.open(commander.in),
       width = ds.rasterSize.x,
       height = ds.rasterSize.y,
       document = jsdom.jsdom(),
-      boundingPoly = wgs84Envelope(ds)
+      envelopes = getEnvelopes(ds),
+      boundingPoly = envelopes.wgs84
 
 const out = d3.select(document.body).append('svg')
   .attr('xmlns', 'http://www.w3.org/2000/svg')
@@ -68,13 +74,21 @@ const path = d3.geoPath()
   .projection(projection)
 
 const states = JSON.parse(fs.readFileSync(commander.states, 'utf-8')),
-      intersections = []
+  intersections = []
 
+// const intersections = states.features.filter(v => v.properties.STUSPS == 'OR')
+// console.log(intersections[0].geometry.coordinates, boundingPoly.geometry.coordinates);
+//
+// boundingPoly.geometry.coordinates = boundingPoly.geometry.coordinates.reverse()
 states.features.forEach(s => {
   const theIntersect = intersection(s.geometry, boundingPoly.geometry)
-  if(theIntersect) intersections.push(theIntersect)
+  if(theIntersect) {
+    theIntersect.properties = s.properties
+    intersections.push(theIntersect)
+  }
 })
 
+intersections.push(boundingPoly)
 const features = featureCollection(intersections)
 projection.fitSize([width, height], features)
 
