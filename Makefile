@@ -85,19 +85,35 @@ $(foreach state,$(STATE_FIPS),$(eval $(STATE_TARGETS_TEMPLATE)))
 ################################################################################
 # Final products
 ################################################################################
-data/png/states/%.png: data/tif/states/%.tif
-	mkdir -p $(dir $@)
-	gdaldem hillshade $< $@ \
-		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
-		-compute_edges \
-		-combined \
-		-of PNG
-
-	pngquant --strip --verbose --force --quality 25 $@
-
 data/svg/states/%.svg: data/tif/states/%.tif
 	mkdir -p $(dir $@)
 	node script/generate-overlay-svg -o $@ -i $< --states data/json/states.json
+
+data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
+	mkdir -p $(dir $@)
+ifeq ("$(CROP_AND_CUT)","yes")
+	echo "Cropping and cutting tif to geometry outline..."
+	$(eval CUTARGS = -cutline $(word 1,$^) -crop_to_cutline)
+endif
+	gdalwarp \
+	  -t_srs $(SRS) \
+		-ts $(WIDTH) $(HEIGHT) \
+		$(word 2,$^) \
+		$@.intermediate
+
+	gdaldem hillshade $@.intermediate $@.hillshade \
+		-z 10.0 -s 1.0 -az 315.0 -alt 45.0 \
+		-compute_edges \
+		-combined
+
+	rm $@.intermediate
+
+	gdalwarp -co COMPRESS=DEFLATE \
+		-dstalpha \
+		$(CUTARGS) \
+		$@.hillshade $@
+
+	rm $@.hillshade
 
 ################################################################################
 # Intermediate products
@@ -112,27 +128,6 @@ data/shp/states.shp: data/gz/census/cb_2015_us_state_500k.zip
 data/img/states/%.img: data/json/states/%.json
 	mkdir -p $(dir $@)
 	bash script/generate-seamless-img $@ $< low $(BUFFER)
-
-data/tif/states/%.tif: data/json/states/%.json data/img/states/%.img
-	mkdir -p $(dir $@)
-ifeq ("$(CROP_AND_CUT)","yes")
-	echo "Cropping and cutting tif to geometry outline..."
-	$(eval CUTARGS = -cutline $(word 1,$^) -crop_to_cutline)
-endif
-	gdalwarp \
-	  -t_srs $(SRS) \
-		-of GTiff \
-		-co COMPRESS=DEFLATE \
-		-dstalpha \
-		-srcnodata -99999 \
-		-dstnodata -99999 \
-		-wo NUM_THREADS=ALL_CPUS \
-		-multi \
-		-ts $(WIDTH) $(HEIGHT) \
-		$(CUTARGS) \
-		-r lanczos \
-		$(word 2,$^) \
-		$@
 
 #############################################################################################
 # Wildcard																																									#
@@ -178,5 +173,4 @@ data/shp/%.shp:
 # ###########################################################################################
 .PHONY:
 clean/state/%:
-	rm data/png/states/$(notdir $@).png
 	rm data/tif/states/$(notdir $@).tif
