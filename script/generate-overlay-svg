@@ -88,7 +88,6 @@ states.features.forEach(s => {
   }
 })
 
-intersections.push(boundingPoly)
 const features = featureCollection(intersections)
 projection.fitSize([width, height], features)
 
