@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # Example usage:
+#    script/generate-seamless-img $OUTPUT_IMG $STATE_GEOJSON ARCSEC_RESOLUTION
 #    script/generate-seamless-img data/img/oregon.img data/json/states/oregon.json 1
-#     script/generate-seamless-img data/img/oregon.img data/json/states/oregon.json 2
+#    script/generate-seamless-img data/img/oregon.img data/json/states/oregon.json 13
 out_img=$1
 target_data=$2
 resolution=$3
