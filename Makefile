@@ -2,7 +2,7 @@
 # SRS='EPSG:2913' make data/tif/states/oregon.tif
 SRS ?= "EPSG:4326"
 # Width and Height of output image.
-WIDTH ?= 2500
+WIDTH ?= 5000
 HEIGHT ?= 0
 # Buffer area in miles around the state boundaries.  This is used to determine which grid files to
 # feetch and draw.  Sometimes you want to draw the surrounding area around the state.
@@ -74,7 +74,7 @@ STATE_FIPS = \
 define STATE_TARGETS_TEMPLATE
 data/json/states/$(word 3,$(subst |, ,$(state))).json: data/shp/states.shp
 	mkdir -p data/json/states
-	shp2json -n data/shp/states.shp | ndjson-filter "d.properties.STATEFP == $(word 1,$(subst |, ,$(state)))" \
+	shp2json -n data/shp/states.shp | ndjson-filter "d.properties.STATEFP == '$(word 1,$(subst |, ,$(state)))'" \
 		> data/json/states/$(word 3,$(subst |, ,$(state))).json
 
 data/shp/$(word 3,$(subst |, ,$(state)))_places.shp: data/gz/census/cb_2015_$(word 1,$(subst |, ,$(state)))_place_500k.zip

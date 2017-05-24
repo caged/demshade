@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-
+//
+// Generates an SVG overlay of various map features for styling
+// in programs like Adobe Illustrator.
+//
 const gdal = require('gdal')
 const d3 = require('d3')
 const jsdom = require('jsdom')
@@ -61,6 +64,7 @@ const ds = gdal.open(commander.in),
       envelopes = getEnvelopes(ds),
       boundingPoly = envelopes.wgs84
 
+console.log(width, height, info);
 const out = d3.select(document.body).append('svg')
   .attr('xmlns', 'http://www.w3.org/2000/svg')
   .attr('width', width)
